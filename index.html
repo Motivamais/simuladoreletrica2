@@ -252,7 +252,6 @@
                                 startElement.classList.add('on');
                             }
                         }
-                        // Nova condição: Lâmpada conectada diretamente à fonte de alimentação
                         if (startElement.classList.contains('lamp') && isPowerSource(endElement.id) && isLampConnectedToNeutral(startElement) && startElement === lamp) {
                             const img = startElement.querySelector('img');
                             img.src = 'images/lamp_on.png';
@@ -311,7 +310,6 @@
             const requiredConnections = [
                 {from: 'switch1.pin-2', to: 'lamp1.pin-1'},
                 {from: 'lamp1.pin-2', to: 'resistor1.pin-1'},
-                // Adicione mais conexões necessárias aqui
             ];
 
             for (const req of requiredConnections) {
@@ -357,7 +355,7 @@
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
 
-                let strokeColor = 'black'; // Default color
+                let strokeColor = 'black';
                 if (start.parentNode.classList.contains('neutro') || end.parentNode.classList.contains('neutro')) {
                     strokeColor = 'blue';
                 } else if (start.parentNode.classList.contains('terra') || end.parentNode.classList.contains('terra')) {
@@ -387,7 +385,6 @@
             const connectionsSvg = document.getElementById('connections');
             connectionsSvg.innerHTML = '';
 
-            // Remover classe connected de todos os pinos
             document.querySelectorAll('.pin').forEach(pin => {
                 pin.classList.remove('connected');
                 pin.classList.remove('invalid');
@@ -408,7 +405,6 @@
                 line.setAttribute('stroke-width', '2');
                 connectionsSvg.appendChild(line);
 
-                // Adicionar classe connected aos pinos conectados
                 start.classList.add('connected');
                 end.classList.add('connected');
             });
@@ -421,7 +417,6 @@
                 history.splice(index, 1);
             }
             document.getElementById('circuit-area').removeChild(element);
-            // Remove all connections related to this component
             for (let i = connections.length - 1; i >= 0; i--) {
                 if (connections[i].from.startsWith(id) || connections[i].to.startsWith(id)) {
                     connections.splice(i, 1);
@@ -589,7 +584,6 @@
 
         document.getElementById('circuit-area').ondrop = drop;
         document.getElementById('circuit-area').ondragover = allowDrop;
-
     </script>
 </body>
 </html>
