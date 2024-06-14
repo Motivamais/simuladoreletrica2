@@ -108,7 +108,7 @@
 </head>
 <body>
     <div id="toolbar">
-        <button onclick="addComponent('lamp', 'images/lamp.png')" title="Adicionar Lâmpada">Adicionar Lâmpada</button>
+        <button onclick="addComponent('lamp', 'images/lamp_off.png')" title="Adicionar Lâmpada">Adicionar Lâmpada</button>
         <button onclick="addComponent('switch', 'images/switch.png')" title="Adicionar Interruptor">Adicionar Interruptor</button>
         <button onclick="addComponent('socket', 'images/socket.png')" title="Adicionar Tomada">Adicionar Tomada</button>
         <button onclick="addComponent('trifasica', 'images/trifasica.png')" title="Adicionar Alimentação Trifásica">Alimentação Trifásica</button>
@@ -224,6 +224,8 @@
         function updateCircuit() {
             const lamps = document.querySelectorAll('.lamp');
             lamps.forEach(lamp => {
+                const img = lamp.querySelector('img');
+                img.src = 'images/lamp_off.png';
                 lamp.classList.remove('on');
             });
 
@@ -238,19 +240,27 @@
                     if (startElement && endElement) {
                         if (startElement.classList.contains('switch') && endElement.classList.contains('lamp') && endElement === lamp) {
                             if (isComponentPowered(startElement) && startElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
+                                const img = endElement.querySelector('img');
+                                img.src = 'images/lamp_on.png';
                                 endElement.classList.add('on');
                             }
                         }
                         if (startElement.classList.contains('lamp') && endElement.classList.contains('switch') && startElement === lamp) {
                             if (isComponentPowered(endElement) && endElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
+                                const img = startElement.querySelector('img');
+                                img.src = 'images/lamp_on.png';
                                 startElement.classList.add('on');
                             }
                         }
                         // Nova condição: Lâmpada conectada diretamente à fonte de alimentação
                         if (startElement.classList.contains('lamp') && isPowerSource(endElement.id) && isLampConnectedToNeutral(startElement) && startElement === lamp) {
+                            const img = startElement.querySelector('img');
+                            img.src = 'images/lamp_on.png';
                             startElement.classList.add('on');
                         }
                         if (endElement.classList.contains('lamp') && isPowerSource(startElement.id) && isLampConnectedToNeutral(endElement) && endElement === lamp) {
+                            const img = endElement.querySelector('img');
+                            img.src = 'images/lamp_on.png';
                             endElement.classList.add('on');
                         }
                     }
@@ -498,7 +508,7 @@
         function getImageUrl(type) {
             switch(type) {
                 case 'lamp':
-                    return 'images/lamp.png';
+                    return 'images/lamp_off.png';
                 case 'switch':
                     return 'images/switch.png';
                 case 'socket':
