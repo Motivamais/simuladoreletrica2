@@ -512,6 +512,8 @@
                         removeConnection(line);
                     }
                 }, false);
+                 line.setAttribute('stroke', 'black'); // Adicione esta linha para definir a cor da linha
+                 line.setAttribute('stroke-width', '2'); // Adicione esta linha para definir a largura da linha
                 connectionsSvg.appendChild(line);
                 connections.push({from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
                 history.push({action: 'connect', from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
