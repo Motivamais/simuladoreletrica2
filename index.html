@@ -14,11 +14,20 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
-        #toolbar {
+        #menu {
             margin-bottom: 20px;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #toolbar {
+            display: none;
             flex-wrap: wrap;
             justify-content: center;
+        }
+        #menu button {
+            padding: 10px 20px;
+            font-size: 16px;
         }
         #toolbar button, #toolbar input {
             margin: 0 5px;
@@ -58,52 +67,90 @@
             left: 50%;
             transform: translateX(-50%);
         }
-
         .lamp-pin-2 {
             bottom: -5px;
             left: 50%;
             transform: translateX(-50%);
         }
-
         /* Posição dos pins para o interruptor */
         .switch-pin-1 {
             top: -5px;
             left: 20%;
             transform: translateX(-50%);
         }
-
         .switch-pin-2 {
             bottom: -5px;
             left: 80%;
             transform: translateX(-50%);
         }
-
         /* Posição dos pins para a tomada */
         .socket-pin-1 {
             top: -5px;
             left: 30%;
             transform: translateX(-50%);
         }
-
         .socket-pin-2 {
             bottom: -5px;
             left: 70%;
             transform: translateX(-50%);
         }
-
         /* Posição dos pins para o motor */
         .motor-pin-1 {
             top: -5px;
-            left: 40%;
+            left: 25%;
             transform: translateX(-50%);
         }
-
         .motor-pin-2 {
-            bottom: -5px;
-            left: 60%;
+            top: -5px;
+            left: 50%;
             transform: translateX(-50%);
         }
-
+        .motor-pin-3 {
+            top: -5px;
+            left: 75%;
+            transform: translateX(-50%);
+        }
+        /* Posição dos pins para o contator */
+        .contator-pin-1 {
+            top: -5px;
+            left: 12.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-2 {
+            top: -5px;
+            left: 37.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-3 {
+            top: -5px;
+            left: 62.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-4 {
+            top: -5px;
+            left: 87.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-5 {
+            bottom: -5px;
+            left: 12.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-6 {
+            bottom: -5px;
+            left: 37.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-7 {
+            bottom: -5px;
+            left: 62.5%;
+            transform: translateX(-50%);
+        }
+        .contator-pin-8 {
+            bottom: -5px;
+            left: 87.5%;
+            transform: translateX(-50%);
+        }
         .pin.connected {
             background-color: green;
         }
@@ -116,6 +163,9 @@
             left: 0;
             width: 100%;
             height: 100%;
+        }
+        .line {
+            cursor: pointer;
         }
         .active {
             background-color: gray !important;
@@ -137,11 +187,11 @@
                 width: 100%;
                 height: 400px;
             }
-            #toolbar {
+            #menu {
                 flex-direction: column;
                 align-items: stretch;
             }
-            #toolbar button, #toolbar input {
+            #menu button, #toolbar button, #toolbar input {
                 width: 100%;
                 margin-bottom: 10px;
             }
@@ -149,24 +199,28 @@
     </style>
 </head>
 <body>
-    <div id="toolbar">
-        <button onclick="addComponent('lamp', 'images/lamp_off.png')" title="Adicionar Lâmpada">Adicionar Lâmpada</button>
-        <button onclick="addComponent('switch', 'images/switch.png')" title="Adicionar Interruptor">Adicionar Interruptor</button>
-        <button onclick="addComponent('socket', 'images/socket.png')" title="Adicionar Tomada">Adicionar Tomada</button>
-        <button onclick="addComponent('trifasica', 'images/trifasica.png')" title="Adicionar Alimentação Trifásica">Alimentação Trifásica</button>
-        <button onclick="addComponent('bifasica', 'images/bifasica.png')" title="Adicionar Alimentação Bifásica">Alimentação Bifásica</button>
-        <button onclick="addComponent('monofasica', 'images/monofasica.png')" title="Adicionar Alimentação Monofásica">Alimentação Monofásica</button>
-        <button onclick="addComponent('neutro', 'images/neutro.png')" title="Adicionar Fio Neutro">Fio Neutro</button>
-        <button onclick="addComponent('terra', 'images/terra.png')" title="Adicionar Fio Terra">Fio Terra</button>
-        <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor</button>
-        <input type="text" id="componentName" placeholder="Nome do Componente">
-        <button id="connectButton" onclick="startConnection()" title="Iniciar Conexão">Iniciar Conexão</button>
-        <button onclick="undo()" title="Desfazer">Desfazer</button>
-        <button onclick="saveConfiguration()" title="Salvar Configuração">Salvar Configuração</button>
-        <button onclick="loadConfiguration()" title="Carregar Configuração">Carregar Configuração</button>
-        <button onclick="saveToFile()" title="Salvar em Arquivo">Salvar em Arquivo</button>
-        <input type="file" id="fileInput" onchange="loadFromFile(this.files[0])" title="Carregar de Arquivo">
-        <button onclick="clearCircuit()" title="Limpar Circuito">Limpar Circuito</button>
+    <div id="menu">
+        <button onclick="toggleToolbar()">Menu</button>
+        <div id="toolbar">
+            <button onclick="addComponent('lamp', 'images/lamp_off.png')" title="Adicionar Lâmpada">Adicionar Lâmpada</button>
+            <button onclick="addComponent('switch', 'images/switch.png')" title="Adicionar Interruptor">Adicionar Interruptor</button>
+            <button onclick="addComponent('socket', 'images/socket.png')" title="Adicionar Tomada">Adicionar Tomada</button>
+            <button onclick="addComponent('monofasica', 'images/monofasica.png')" title="Adicionar Alimentação Monofásica">Alimentação Monofásica</button>
+            <button onclick="addComponent('neutro', 'images/neutro.png')" title="Adicionar Fio Neutro">Fio Neutro</button>
+            <button onclick="addComponent('terra', 'images/terra.png')" title="Adicionar Fio Terra">Fio Terra</button>
+            <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor</button>
+            <button onclick="addComponent('treeway1', 'images/treeway1.png')" title="Adicionar Interruptor Treeway 1">Interruptor Treeway 1</button>
+            <button onclick="addComponent('treeway2', 'images/treeway2.png')" title="Adicionar Interruptor Treeway 2">Interruptor Treeway 2</button>
+            <button onclick="addComponent('contator', 'images/contator.png')" title="Adicionar Contator">Adicionar Contator</button>
+            <input type="text" id="componentName" placeholder="Nome do Componente">
+            <button id="connectButton" onclick="startConnection()" title="Iniciar Conexão">Iniciar Conexão</button>
+            <button onclick="undo()" title="Desfazer">Desfazer</button>
+            <button onclick="saveConfiguration()" title="Salvar Configuração">Salvar Configuração</button>
+            <button onclick="loadConfiguration()" title="Carregar Configuração">Carregar Configuração</button>
+            <button onclick="saveToFile()" title="Salvar em Arquivo">Salvar em Arquivo</button>
+            <input type="file" id="fileInput" onchange="loadFromFile(this.files[0])" title="Carregar de Arquivo">
+            <button onclick="clearCircuit()" title="Limpar Circuito">Limpar Circuito</button>
+        </div>
     </div>
     <div id="circuit-area" ondrop="drop(event)" ondragover="allowDrop(event)">
         <svg id="connections"></svg>
@@ -178,8 +232,14 @@
         let isConnecting = false;
         let startPin = null;
         let offsetX, offsetY;
+        let draggingLine = null;
         const connections = [];
         const history = [];
+
+        function toggleToolbar() {
+            const toolbar = document.getElementById('toolbar');
+            toolbar.style.display = toolbar.style.display === 'flex' ? 'none' : 'flex';
+        }
 
         function addComponent(type, imageUrl) {
             componentCounter++;
@@ -192,18 +252,42 @@
             component.addEventListener('touchstart', touchStart, false);
             component.addEventListener('touchmove', touchMove, false);
             component.addEventListener('touchend', touchEnd, false);
-            component.addEventListener('dblclick', function() {
-                removeComponent(component.id);
-            }, false);
             component.addEventListener('mousedown', mouseDown, false);
             component.addEventListener('mouseup', mouseUp, false);
             component.addEventListener('mousemove', mouseMove, false);
-            if (type === 'switch') {
+            component.addEventListener('dblclick', function() {
+                removeComponent(component.id);
+            }, false);
+            component.addEventListener('click', function(event) {
+                if (event.detail === 3) {
+                    removeComponent(component.id);
+                }
+            }, false);
+            if (type === 'switch' || type === 'treeway1' || type === 'treeway2') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
             }
             const componentName = document.getElementById('componentName').value || component.id;
-            component.innerHTML = `<div class="pin pin-1 ${type}-pin-1" data-pin="1"></div><img src="${imageUrl}" alt="${componentName}"><div class="pin pin-2 ${type}-pin-2" data-pin="2"></div>`;
+            if (type === 'motor') {
+                component.innerHTML = `<div class="pin motor-pin-1" data-pin="1"></div>
+                                       <div class="pin motor-pin-2" data-pin="2"></div>
+                                       <div class="pin motor-pin-3" data-pin="3"></div>
+                                       <img src="${imageUrl}" alt="${componentName}">`;
+            } else if (type === 'contator') {
+                component.innerHTML = `<div class="pin contator-pin-1" data-pin="1"></div>
+                                       <div class="pin contator-pin-2" data-pin="2"></div>
+                                       <div class="pin contator-pin-3" data-pin="3"></div>
+                                       <div class="pin contator-pin-4" data-pin="4"></div>
+                                       <img src="${imageUrl}" alt="${componentName}">
+                                       <div class="pin contator-pin-5" data-pin="5"></div>
+                                       <div class="pin contator-pin-6" data-pin="6"></div>
+                                       <div class="pin contator-pin-7" data-pin="7"></div>
+                                       <div class="pin contator-pin-8" data-pin="8"></div>`;
+            } else {
+                component.innerHTML = `<div class="pin pin-1 ${type}-pin-1" data-pin="1"></div>
+                                       <img src="${imageUrl}" alt="${componentName}">
+                                       <div class="pin pin-2 ${type}-pin-2" data-pin="2"></div>`;
+            }
             document.getElementById('circuit-area').appendChild(component);
             history.push({action: 'add', element: component});
         }
@@ -328,29 +412,12 @@
                     const endElement = document.getElementById(endComp);
 
                     if (startElement && endElement) {
-                        if (startElement.classList.contains('switch') && endElement.classList.contains('motor') && endElement === motor) {
-                            if (isComponentPowered(startElement) && startElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp)) {
+                        if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
+                            if (isComponentPowered(startElement) && areMotorPinsConnected(motor) && areComponentsConnected(startComp, endComp)) {
                                 const img = endElement.querySelector('img');
                                 img.src = 'images/motor_on.png';
                                 endElement.classList.add('on');
                             }
-                        }
-                        if (startElement.classList.contains('motor') && endElement.classList.contains('switch') && startElement === motor) {
-                            if (isComponentPowered(endElement) && endElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp)) {
-                                const img = startElement.querySelector('img');
-                                img.src = 'images/motor_on.png';
-                                startElement.classList.add('on');
-                            }
-                        }
-                        if (startElement.classList.contains('motor') && isPowerSource(endElement.id) && startElement === motor) {
-                            const img = startElement.querySelector('img');
-                            img.src = 'images/motor_on.png';
-                            startElement.classList.add('on');
-                        }
-                        if (endElement.classList.contains('motor') && isPowerSource(startElement.id) && endElement === motor) {
-                            const img = endElement.querySelector('img');
-                            img.src = 'images/motor_on.png';
-                            endElement.classList.add('on');
                         }
                     }
                 });
@@ -384,7 +451,7 @@
 
         function isPowerSource(componentId) {
             const component = document.getElementById(componentId);
-            return component && (component.classList.contains('trifasica') || component.classList.contains('bifasica') || component.classList.contains('monofasica'));
+            return component && component.classList.contains('monofasica');
         }
 
         function isLampConnectedToNeutral(lamp) {
@@ -396,42 +463,21 @@
             });
         }
 
-        function areConnectionsComplete() {
-            const requiredConnections = [
-                {from: 'switch1.pin-2', to: 'lamp1.pin-1'},
-                {from: 'lamp1.pin-2', to: 'resistor1.pin-1'},
-            ];
-
-            for (const req of requiredConnections) {
-                if (!connections.some(conn => (conn.from === req.from && conn.to === req.to) || (conn.from === req.to && conn.to === req.from))) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        function areComponentsConnected(comp1, comp2) {
-            return connections.some(conn => (conn.from.startsWith(comp1) && conn.to.startsWith(comp2)) || (conn.from.startsWith(comp2) && conn.to.startsWith(comp1)));
-        }
-
-        function getConnectedLampId() {
-            const lamp = document.querySelector('.lamp');
-            return lamp ? lamp.id : null;
-        }
-
-        document.getElementById('circuit-area').addEventListener('click', function(event) {
-            if (isConnecting) {
-                const target = event.target.closest('.pin');
-                if (target) {
-                    if (startPin) {
-                        createConnection(startPin, target);
-                        startPin = null;
-                    } else {
-                        startPin = target;
+        function areMotorPinsConnected(motor) {
+            const motorId = motor.id;
+            const pinsConnected = [false, false, false];
+            connections.forEach(conn => {
+                const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherComponent = document.getElementById(otherEnd);
+                if (otherComponent && otherComponent.classList.contains('monofasica')) {
+                    if (pinNumber >= 1 && pinNumber <= 3) {
+                        pinsConnected[pinNumber - 1] = true;
                     }
                 }
-            }
-        });
+            });
+            return pinsConnected.every(pin => pin);
+        }
 
         function createConnection(start, end) {
             if (isConnectionValid(start, end)) {
@@ -444,16 +490,14 @@
                 line.setAttribute('y1', startRect.top + start.offsetHeight / 2 - circuitAreaRect.top);
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
-
-                let strokeColor = 'black';
-                if (start.parentNode.classList.contains('neutro') || end.parentNode.classList.contains('neutro')) {
-                    strokeColor = 'blue';
-                } else if (start.parentNode.classList.contains('terra') || end.parentNode.classList.contains('terra')) {
-                    strokeColor = 'green';
-                }
-
-                line.setAttribute('stroke', strokeColor);
-                line.setAttribute('stroke-width', '2');
+                line.classList.add('line');
+                line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
+                line.addEventListener('mousedown', startDragLine);
+                line.addEventListener('click', function(event) {
+                    if (event.detail === 3) {
+                        removeConnection(line);
+                    }
+                }, false);
                 connectionsSvg.appendChild(line);
                 connections.push({from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
                 history.push({action: 'connect', from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
@@ -465,6 +509,33 @@
                 end.classList.add('invalid');
                 showMessage('Conexão inválida!', 'error');
             }
+        }
+
+        function startDragLine(event) {
+            draggingLine = event.target;
+            document.addEventListener('mousemove', dragLine);
+            document.addEventListener('mouseup', endDragLine);
+        }
+
+        function dragLine(event) {
+            if (!draggingLine) return;
+            const circuitAreaRect = document.getElementById('circuit-area').getBoundingClientRect();
+            const x = event.clientX - circuitAreaRect.left;
+            const y = event.clientY - circuitAreaRect.top;
+            if (Math.abs(event.movementX) > Math.abs(event.movementY)) {
+                draggingLine.setAttribute('x2', x);
+                draggingLine.setAttribute('y2', draggingLine.getAttribute('y1'));
+            } else {
+                draggingLine.setAttribute('x2', draggingLine.getAttribute('x1'));
+                draggingLine.setAttribute('y2', y);
+            }
+            updateConnections();
+        }
+
+        function endDragLine(event) {
+            document.removeEventListener('mousemove', dragLine);
+            document.removeEventListener('mouseup', endDragLine);
+            draggingLine = null;
         }
 
         function isConnectionValid(start, end) {
@@ -491,8 +562,9 @@
                 line.setAttribute('y1', startRect.top + start.offsetHeight / 2 - circuitAreaRect.top);
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
-                line.setAttribute('stroke', 'black');
-                line.setAttribute('stroke-width', '2');
+                line.classList.add('line');
+                line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
+                line.addEventListener('mousedown', startDragLine);
                 connectionsSvg.appendChild(line);
 
                 start.classList.add('connected');
@@ -514,6 +586,31 @@
             }
             updateConnections();
             updateCircuit();
+        }
+
+        function removeConnection(line) {
+            const x1 = line.getAttribute('x1');
+            const y1 = line.getAttribute('y1');
+            const x2 = line.getAttribute('x2');
+            const y2 = line.getAttribute('y2');
+            const index = connections.findIndex(conn => {
+                const start = document.querySelector(`#${conn.from.split('.')[0]} .pin[data-pin="${conn.from.split('.')[1]}"]`);
+                const end = document.querySelector(`#${conn.to.split('.')[0]} .pin[data-pin="${conn.to.split('.')[1]}"]`);
+                const startRect = start.getBoundingClientRect();
+                const endRect = end.getBoundingClientRect();
+                const circuitAreaRect = document.getElementById('circuit-area').getBoundingClientRect();
+                return (
+                    startRect.left + start.offsetWidth / 2 - circuitAreaRect.left === parseFloat(x1) &&
+                    startRect.top + start.offsetHeight / 2 - circuitAreaRect.top === parseFloat(y1) &&
+                    endRect.left + end.offsetWidth / 2 - circuitAreaRect.left === parseFloat(x2) &&
+                    endRect.top + end.offsetHeight / 2 - circuitAreaRect.top === parseFloat(y2)
+                );
+            });
+            if (index > -1) {
+                connections.splice(index, 1);
+                updateConnections();
+                updateCircuit();
+            }
         }
 
         function undo() {
@@ -598,10 +695,6 @@
                     return 'images/switch.png';
                 case 'socket':
                     return 'images/socket.png';
-                case 'trifasica':
-                    return 'images/trifasica.png';
-                case 'bifasica':
-                    return 'images/bifasica.png';
                 case 'monofasica':
                     return 'images/monofasica.png';
                 case 'neutro':
@@ -610,6 +703,12 @@
                     return 'images/terra.png';
                 case 'motor':
                     return 'images/motor.png';
+                case 'treeway1':
+                    return 'images/treeway1.png';
+                case 'treeway2':
+                    return 'images/treeway2.png';
+                case 'contator':
+                    return 'images/contator.png';
                 default:
                     return '';
             }
@@ -701,7 +800,6 @@
             component.removeEventListener('mouseleave', mouseUp, false); // Adicione esta linha para remover o mouse leave
             updateConnections();
         }
-
     </script>
 </body>
 </html>
