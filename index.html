@@ -47,8 +47,8 @@
         .component {
             position: absolute;
             cursor: move;
-            width: 150px; /* Ajuste conforme necessário */
-            height: 150px; /* Ajuste conforme necessário */
+            width: 50px; /* Ajuste conforme necessário */
+            height: 50px; /* Ajuste conforme necessário */
         }
         .component img {
             width: 100%;
@@ -505,6 +505,8 @@
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
+                line.setAttribute('stroke', 'black'); // Define a cor da linha
+                line.setAttribute('stroke-width', '2'); // Define a largura da linha
                 line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 line.addEventListener('click', function(event) {
@@ -512,8 +514,6 @@
                         removeConnection(line);
                     }
                 }, false);
-                 line.setAttribute('stroke', 'black'); // Adicione esta linha para definir a cor da linha
-                 line.setAttribute('stroke-width', '2'); // Adicione esta linha para definir a largura da linha
                 connectionsSvg.appendChild(line);
                 connections.push({from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
                 history.push({action: 'connect', from: start.parentNode.id + '.' + start.dataset.pin, to: end.parentNode.id + '.' + end.dataset.pin});
@@ -579,6 +579,8 @@
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
+                line.setAttribute('stroke', 'black'); // Define a cor da linha
+                line.setAttribute('stroke-width', '2'); // Define a largura da linha
                 line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 connectionsSvg.appendChild(line);
