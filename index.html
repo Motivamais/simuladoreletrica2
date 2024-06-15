@@ -38,8 +38,8 @@
         .component {
             position: absolute;
             cursor: move;
-            width: 150px; /* Ajuste conforme necessário */
-            height: 150px; /* Ajuste conforme necessário */
+            width: 50px; /* Ajuste conforme necessário */
+            height: 50px; /* Ajuste conforme necessário */
         }
         .component img {
             width: 100%;
@@ -52,16 +52,58 @@
             position: absolute;
             border-radius: 50%;
         }
-        .pin-1 {
+        /* Posição dos pins para a lâmpada */
+        .lamp-pin-1 {
             top: -5px;
             left: 50%;
             transform: translateX(-50%);
         }
-        .pin-2 {
+
+        .lamp-pin-2 {
             bottom: -5px;
             left: 50%;
             transform: translateX(-50%);
         }
+
+        /* Posição dos pins para o interruptor */
+        .switch-pin-1 {
+            top: -5px;
+            left: 20%;
+            transform: translateX(-50%);
+        }
+
+        .switch-pin-2 {
+            bottom: -5px;
+            left: 80%;
+            transform: translateX(-50%);
+        }
+
+        /* Posição dos pins para a tomada */
+        .socket-pin-1 {
+            top: -5px;
+            left: 30%;
+            transform: translateX(-50%);
+        }
+
+        .socket-pin-2 {
+            bottom: -5px;
+            left: 70%;
+            transform: translateX(-50%);
+        }
+
+        /* Posição dos pins para o motor */
+        .motor-pin-1 {
+            top: -5px;
+            left: 40%;
+            transform: translateX(-50%);
+        }
+
+        .motor-pin-2 {
+            bottom: -5px;
+            left: 60%;
+            transform: translateX(-50%);
+        }
+
         .pin.connected {
             background-color: green;
         }
@@ -161,7 +203,7 @@
                 component.dataset.state = 'off';
             }
             const componentName = document.getElementById('componentName').value || component.id;
-            component.innerHTML = `<div class="pin pin-1" data-pin="1"></div><img src="${imageUrl}" alt="${componentName}"><div class="pin pin-2" data-pin="2"></div>`;
+            component.innerHTML = `<div class="pin pin-1 ${type}-pin-1" data-pin="1"></div><img src="${imageUrl}" alt="${componentName}"><div class="pin pin-2 ${type}-pin-2" data-pin="2"></div>`;
             document.getElementById('circuit-area').appendChild(component);
             history.push({action: 'add', element: component});
         }
