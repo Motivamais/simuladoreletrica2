@@ -593,6 +593,7 @@
             offsetY = event.clientY - component.offsetTop;
             component.addEventListener('mousemove', mouseMove, false);
             component.addEventListener('mouseup', mouseUp, false);
+            component.addEventListener('mouseleave', mouseUp, false);
         }
 
         function mouseMove(event) {
@@ -608,6 +609,7 @@
             const component = event.target.closest('.component');
             component.removeEventListener('mousemove', mouseMove, false);
             component.removeEventListener('mouseup', mouseUp, false);
+           component.removeEventListener('mouseleave', mouseUp, false);
             updateConnections();
         }
 
