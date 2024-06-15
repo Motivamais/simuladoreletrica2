@@ -38,8 +38,8 @@
         .component {
             position: absolute;
             cursor: move;
-            width: 100px; /* Altere este valor para o tamanho desejado */
-            height: 100px; /* Altere este valor para o tamanho desejado */
+            width: 50px; /* Ajuste conforme necessário */
+            height: 50px; /* Ajuste conforme necessário */
         }
         .component img {
             width: 100%;
@@ -53,14 +53,13 @@
             border-radius: 50%;
         }
         .pin-1 {
-            bottom: 100px; /* Mantém o pin na parte inferior */
-            left: 50%; /* Ajusta a posição horizontal para a esquerda */
+            top: -5px;
+            left: 50%;
             transform: translateX(-50%);
         }
-
         .pin-2 {
-            bottom: -4px; /* Mantém o pin na parte inferior */
-            left: 50%; /* Ajusta a posição horizontal para a direita */
+            bottom: -5px;
+            left: 50%;
             transform: translateX(-50%);
         }
         .pin.connected {
@@ -234,6 +233,13 @@
                 lamp.classList.remove('on');
             });
 
+            const motors = document.querySelectorAll('.motor');
+            motors.forEach(motor => {
+                const img = motor.querySelector('img');
+                img.src = 'images/motor.png';
+                motor.classList.remove('on');
+            });
+
             lamps.forEach(lamp => {
                 connections.forEach(connection => {
                     const [startComp, startPin] = connection.from.split('.');
@@ -265,6 +271,43 @@
                         if (endElement.classList.contains('lamp') && isPowerSource(startElement.id) && isLampConnectedToNeutral(endElement) && endElement === lamp) {
                             const img = endElement.querySelector('img');
                             img.src = 'images/lamp_on.png';
+                            endElement.classList.add('on');
+                        }
+                    }
+                });
+            });
+
+            motors.forEach(motor => {
+                connections.forEach(connection => {
+                    const [startComp, startPin] = connection.from.split('.');
+                    const [endComp, endPin] = connection.to.split('.');
+
+                    const startElement = document.getElementById(startComp);
+                    const endElement = document.getElementById(endComp);
+
+                    if (startElement && endElement) {
+                        if (startElement.classList.contains('switch') && endElement.classList.contains('motor') && endElement === motor) {
+                            if (isComponentPowered(startElement) && startElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp)) {
+                                const img = endElement.querySelector('img');
+                                img.src = 'images/motor_on.png';
+                                endElement.classList.add('on');
+                            }
+                        }
+                        if (startElement.classList.contains('motor') && endElement.classList.contains('switch') && startElement === motor) {
+                            if (isComponentPowered(endElement) && endElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp)) {
+                                const img = startElement.querySelector('img');
+                                img.src = 'images/motor_on.png';
+                                startElement.classList.add('on');
+                            }
+                        }
+                        if (startElement.classList.contains('motor') && isPowerSource(endElement.id) && startElement === motor) {
+                            const img = startElement.querySelector('img');
+                            img.src = 'images/motor_on.png';
+                            startElement.classList.add('on');
+                        }
+                        if (endElement.classList.contains('motor') && isPowerSource(startElement.id) && endElement === motor) {
+                            const img = endElement.querySelector('img');
+                            img.src = 'images/motor_on.png';
                             endElement.classList.add('on');
                         }
                     }
