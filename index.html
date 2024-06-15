@@ -35,8 +35,8 @@
             font-size: 16px;
         }
         #circuit-area {
-            width: 1200px; /* Ajuste conforme necessário */
-            height: 800px; /* Ajuste conforme necessário */
+            width: 1200px;
+            height: 800px;
             position: relative;
             background-color: white;
             border: 1px solid #ccc;
@@ -47,17 +47,13 @@
         .component {
             position: absolute;
             cursor: move;
-            width: 200px; /* Ajuste conforme necessário */
-            height: 200px; /* Ajuste conforme necessário */
+            width: 50px;
+            height: 50px;
         }
         .component img {
             width: 100%;
             height: 100%;
         }
-        .treeway2 {
-            width: 100px;
-            height: 200px;
-             }
         .pin {
             width: 10px;
             height: 10px;
@@ -65,40 +61,16 @@
             position: absolute;
             border-radius: 50%;
         }
-        /* Posição dos pins para a lâmpada */
-        .lamp-pin-1 {
+        .lamp-pin-1, .switch-pin-1, .socket-pin-1 {
             top: -5px;
             left: 50%;
             transform: translateX(-50%);
         }
-        .lamp-pin-2 {
+        .lamp-pin-2, .switch-pin-2, .socket-pin-2 {
             bottom: -5px;
             left: 50%;
             transform: translateX(-50%);
         }
-        /* Posição dos pins para o interruptor */
-        .switch-pin-1 {
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .switch-pin-2 {
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        /* Posição dos pins para a tomada */
-        .socket-pin-1 {
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .socket-pin-2 {
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        /* Posição dos pins para o motor */
         .motor-pin-1 {
             top: -5px;
             left: 25%;
@@ -114,45 +86,49 @@
             left: 75%;
             transform: translateX(-50%);
         }
-        /* Posição dos pins para o contator */
-        .contator-pin-1 {
+        .contator-pin-1, .contator-pin-2, .contator-pin-3, .contator-pin-4 {
             top: -5px;
+        }
+        .contator-pin-1 {
             left: 12.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-2 {
-            top: -5px;
             left: 37.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-3 {
-            top: -5px;
             left: 62.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-4 {
-            top: -5px;
             left: 87.5%;
-            transform: translateX(-50%);
+        }
+        .contator-pin-5, .contator-pin-6, .contator-pin-7, .contator-pin-8 {
+            bottom: -5px;
         }
         .contator-pin-5 {
-            bottom: -5px;
             left: 12.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-6 {
-            bottom: -5px;
             left: 37.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-7 {
-            bottom: -5px;
             left: 62.5%;
-            transform: translateX(-50%);
         }
         .contator-pin-8 {
-            bottom: -5px;
             left: 87.5%;
+        }
+        .treeway1-pin-1, .treeway2-pin-1 {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .treeway1-pin-2, .treeway2-pin-2 {
+            bottom: -5px;
+            left: 25%;
+            transform: translateX(-50%);
+        }
+        .treeway1-pin-3, .treeway2-pin-3 {
+            bottom: -5px;
+            left: 75%;
             transform: translateX(-50%);
         }
         .pin.connected {
@@ -287,6 +263,11 @@
                                        <div class="pin contator-pin-6" data-pin="6"></div>
                                        <div class="pin contator-pin-7" data-pin="7"></div>
                                        <div class="pin contator-pin-8" data-pin="8"></div>`;
+            } else if (type === 'treeway1' || type === 'treeway2') {
+                component.innerHTML = `<div class="pin ${type}-pin-1" data-pin="1"></div>
+                                       <div class="pin ${type}-pin-2" data-pin="2"></div>
+                                       <div class="pin ${type}-pin-3" data-pin="3"></div>
+                                       <img src="${imageUrl}" alt="${componentName}">`;
             } else {
                 component.innerHTML = `<div class="pin pin-1 ${type}-pin-1" data-pin="1"></div>
                                        <img src="${imageUrl}" alt="${componentName}">
@@ -370,41 +351,34 @@
                 motor.classList.remove('on');
             });
 
-            lamps.forEach(lamp => {
-                connections.forEach(connection => {
-                    const [startComp, startPin] = connection.from.split('.');
-                    const [endComp, endPin] = connection.to.split('.');
+            const switches = document.querySelectorAll('.switch, .treeway1, .treeway2');
+            switches.forEach(switchComponent => {
+                if (switchComponent.dataset.state === 'on') {
+                    connections.forEach(connection => {
+                        const [startComp, startPin] = connection.from.split('.');
+                        const [endComp, endPin] = connection.to.split('.');
 
-                    const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementById(endComp);
+                        const startElement = document.getElementById(startComp);
+                        const endElement = document.getElementById(endComp);
 
-                    if (startElement && endElement) {
-                        if (startElement.classList.contains('switch') && endElement.classList.contains('lamp') && endElement === lamp) {
-                            if (isComponentPowered(startElement) && startElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
-                                const img = endElement.querySelector('img');
-                                img.src = 'images/lamp_on.png';
-                                endElement.classList.add('on');
+                        if (startElement && endElement) {
+                            if ((startElement.classList.contains('switch') || startElement.classList.contains('treeway1') || startElement.classList.contains('treeway2')) && endElement.classList.contains('lamp') && endElement === lamp) {
+                                if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
+                                    const img = endElement.querySelector('img');
+                                    img.src = 'images/lamp_on.png';
+                                    endElement.classList.add('on');
+                                }
+                            }
+                            if (startElement.classList.contains('lamp') && (endElement.classList.contains('switch') || endElement.classList.contains('treeway1') || endElement.classList.contains('treeway2')) && startElement === lamp) {
+                                if (isComponentPowered(endElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
+                                    const img = startElement.querySelector('img');
+                                    img.src = 'images/lamp_on.png';
+                                    startElement.classList.add('on');
+                                }
                             }
                         }
-                        if (startElement.classList.contains('lamp') && endElement.classList.contains('switch') && startElement === lamp) {
-                            if (isComponentPowered(endElement) && endElement.dataset.state === 'on' && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
-                                const img = startElement.querySelector('img');
-                                img.src = 'images/lamp_on.png';
-                                startElement.classList.add('on');
-                            }
-                        }
-                        if (startElement.classList.contains('lamp') && isPowerSource(endElement.id) && isLampConnectedToNeutral(startElement) && startElement === lamp) {
-                            const img = startElement.querySelector('img');
-                            img.src = 'images/lamp_on.png';
-                            startElement.classList.add('on');
-                        }
-                        if (endElement.classList.contains('lamp') && isPowerSource(startElement.id) && isLampConnectedToNeutral(endElement) && endElement === lamp) {
-                            const img = endElement.querySelector('img');
-                            img.src = 'images/lamp_on.png';
-                            endElement.classList.add('on');
-                        }
-                    }
-                });
+                    });
+                }
             });
 
             motors.forEach(motor => {
@@ -413,7 +387,7 @@
                     const [endComp, endPin] = connection.to.split('.');
 
                     const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementById(endComp);
+                    const endElement = document.getElementId(endComp);
 
                     if (startElement && endElement) {
                         if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
@@ -509,8 +483,8 @@
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
-                line.setAttribute('stroke', 'black'); // Define a cor da linha
-                line.setAttribute('stroke-width', '2'); // Define a largura da linha
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '2');
                 line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 line.addEventListener('click', function(event) {
@@ -583,8 +557,8 @@
                 line.setAttribute('x2', endRect.left + end.offsetWidth / 2 - circuitAreaRect.left);
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
-                line.setAttribute('stroke', 'black'); // Define a cor da linha
-                line.setAttribute('stroke-width', '2'); // Define a largura da linha
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '2');
                 line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 connectionsSvg.appendChild(line);
@@ -803,7 +777,7 @@
             offsetY = event.clientY - component.offsetTop;
             component.addEventListener('mousemove', mouseMove, false);
             component.addEventListener('mouseup', mouseUp, false);
-            component.addEventListener('mouseleave', mouseUp, false); // Adicione esta linha para lidar com mouse leave
+            component.addEventListener('mouseleave', mouseUp, false);
         }
 
         function mouseMove(event) {
@@ -819,7 +793,7 @@
             const component = event.target.closest('.component');
             component.removeEventListener('mousemove', mouseMove, false);
             component.removeEventListener('mouseup', mouseUp, false);
-            component.removeEventListener('mouseleave', mouseUp, false); // Adicione esta linha para remover o mouse leave
+            component.removeEventListener('mouseleave', mouseUp, false);
             updateConnections();
         }
     </script>
