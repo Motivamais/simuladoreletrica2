@@ -38,8 +38,8 @@
         .component {
             position: absolute;
             cursor: move;
-            width: 100px;
-            height: 100px;
+            width: 100px; /* Altere este valor para o tamanho desejado */
+            height: 100px; /* Altere este valor para o tamanho desejado */
         }
         .component img {
             width: 100%;
@@ -53,13 +53,14 @@
             border-radius: 50%;
         }
         .pin-1 {
-            top: 10px;
-            left: 40%;
+            bottom: -5px; /* Mantém o pin na parte inferior */
+            left: 40%; /* Ajusta a posição horizontal para a esquerda */
             transform: translateX(-50%);
         }
+
         .pin-2 {
-            bottom: 80px;
-            left: 60%;
+            bottom: -5px; /* Mantém o pin na parte inferior */
+            left: 60%; /* Ajusta a posição horizontal para a direita */
             transform: translateX(-50%);
         }
         .pin.connected {
@@ -116,6 +117,7 @@
         <button onclick="addComponent('monofasica', 'images/monofasica.png')" title="Adicionar Alimentação Monofásica">Alimentação Monofásica</button>
         <button onclick="addComponent('neutro', 'images/neutro.png')" title="Adicionar Fio Neutro">Fio Neutro</button>
         <button onclick="addComponent('terra', 'images/terra.png')" title="Adicionar Fio Terra">Fio Terra</button>
+        <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor</button>
         <input type="text" id="componentName" placeholder="Nome do Componente">
         <button id="connectButton" onclick="startConnection()" title="Iniciar Conexão">Iniciar Conexão</button>
         <button onclick="undo()" title="Desfazer">Desfazer</button>
@@ -521,6 +523,8 @@
                     return 'images/neutro.png';
                 case 'terra':
                     return 'images/terra.png';
+                case 'motor':
+                    return 'images/motor.png';
                 default:
                     return '';
             }
@@ -593,7 +597,7 @@
             offsetY = event.clientY - component.offsetTop;
             component.addEventListener('mousemove', mouseMove, false);
             component.addEventListener('mouseup', mouseUp, false);
-            component.addEventListener('mouseleave', mouseUp, false);
+            component.addEventListener('mouseleave', mouseUp, false); // Adicione esta linha para lidar com mouse leave
         }
 
         function mouseMove(event) {
@@ -609,7 +613,7 @@
             const component = event.target.closest('.component');
             component.removeEventListener('mousemove', mouseMove, false);
             component.removeEventListener('mouseup', mouseUp, false);
-           component.removeEventListener('mouseleave', mouseUp, false);
+            component.removeEventListener('mouseleave', mouseUp, false); // Adicione esta linha para remover o mouse leave
             updateConnections();
         }
 
