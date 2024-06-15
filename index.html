@@ -152,6 +152,9 @@
             component.addEventListener('dblclick', function() {
                 removeComponent(component.id);
             }, false);
+            component.addEventListener('mousedown', mouseDown, false);
+            component.addEventListener('mouseup', mouseUp, false);
+            component.addEventListener('mousemove', mouseMove, false);
             if (type === 'switch') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
@@ -582,8 +585,31 @@
             showMessage('Circuito limpo!', 'info');
         }
 
-        document.getElementById('circuit-area').ondrop = drop;
-        document.getElementById('circuit-area').ondragover = allowDrop;
+        // Funções para movimentar as imagens livremente
+        function mouseDown(event) {
+            event.preventDefault();
+            const component = event.target.closest('.component');
+            offsetX = event.clientX - component.offsetLeft;
+            offsetY = event.clientY - component.offsetTop;
+            component.addEventListener('mousemove', mouseMove, false);
+            component.addEventListener('mouseup', mouseUp, false);
+        }
+
+        function mouseMove(event) {
+            event.preventDefault();
+            const component = event.target.closest('.component');
+            component.style.left = (event.clientX - offsetX) + 'px';
+            component.style.top = (event.clientY - offsetY) + 'px';
+            updateConnections();
+        }
+
+        function mouseUp(event) {
+            event.preventDefault();
+            const component = event.target.closest('.component');
+            component.removeEventListener('mousemove', mouseMove, false);
+            component.removeEventListener('mouseup', mouseUp, false);
+            updateConnections();
+        }
 
     </script>
 </body>
