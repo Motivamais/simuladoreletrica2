@@ -61,76 +61,6 @@
             position: absolute;
             border-radius: 50%;
         }
-        .lamp-pin-1, .switch-pin-1, .socket-pin-1 {
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .lamp-pin-2, .switch-pin-2, .socket-pin-2 {
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .motor-pin-1 {
-            top: -5px;
-            left: 25%;
-            transform: translateX(-50%);
-        }
-        .motor-pin-2 {
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .motor-pin-3 {
-            top: -5px;
-            left: 75%;
-            transform: translateX(-50%);
-        }
-        .contator-pin-1, .contator-pin-2, .contator-pin-3, .contator-pin-4 {
-            top: -5px;
-        }
-        .contator-pin-1 {
-            left: 12.5%;
-        }
-        .contator-pin-2 {
-            left: 37.5%;
-        }
-        .contator-pin-3 {
-            left: 62.5%;
-        }
-        .contator-pin-4 {
-            left: 87.5%;
-        }
-        .contator-pin-5, .contator-pin-6, .contator-pin-7, .contator-pin-8 {
-            bottom: -5px;
-        }
-        .contator-pin-5 {
-            left: 12.5%;
-        }
-        .contator-pin-6 {
-            left: 37.5%;
-        }
-        .contator-pin-7 {
-            left: 62.5%;
-        }
-        .contator-pin-8 {
-            left: 87.5%;
-        }
-        .treeway1-pin-1, .treeway2-pin-1 {
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .treeway1-pin-2, .treeway2-pin-2 {
-            bottom: -5px;
-            left: 25%;
-            transform: translateX(-50%);
-        }
-        .treeway1-pin-3, .treeway2-pin-3 {
-            bottom: -5px;
-            left: 75%;
-            transform: translateX(-50%);
-        }
         .pin.connected {
             background-color: green;
         }
@@ -188,8 +118,8 @@
             <button onclick="addComponent('monofasica', 'images/monofasica.png')" title="Adicionar Alimentação Monofásica">Alimentação Monofásica</button>
             <button onclick="addComponent('neutro', 'images/neutro.png')" title="Adicionar Fio Neutro">Fio Neutro</button>
             <button onclick="addComponent('terra', 'images/terra.png')" title="Adicionar Fio Terra">Fio Terra</button>
-            <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor
-                <button onclick="addComponent('treeway1', 'images/treeway1.png')" title="Adicionar Interruptor Treeway 1">Interruptor Treeway 1</button>
+            <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor</button>
+            <button onclick="addComponent('treeway1', 'images/treeway1.png')" title="Adicionar Interruptor Treeway 1">Interruptor Treeway 1</button>
             <button onclick="addComponent('treeway2', 'images/treeway2.png')" title="Adicionar Interruptor Treeway 2">Interruptor Treeway 2</button>
             <button onclick="addComponent('contator', 'images/contator.png')" title="Adicionar Contator">Adicionar Contator</button>
             <input type="text" id="componentName" placeholder="Nome do Componente">
@@ -245,35 +175,42 @@
                 component.dataset.state = 'off';
             }
             const componentName = document.getElementById('componentName').value || component.id;
-            if (type === 'motor') {
-                component.innerHTML = `<div class="pin motor-pin-1" data-pin="1"></div>
-                                       <div class="pin motor-pin-2" data-pin="2"></div>
-                                       <div class="pin motor-pin-3" data-pin="3"></div>
-                                       <img src="${imageUrl}" alt="${componentName}">`;
-            } else if (type === 'contator') {
-                component.innerHTML = `<div class="pin contator-pin-1" data-pin="1"></div>
-                                       <div class="pin contator-pin-2" data-pin="2"></div>
-                                       <div class="pin contator-pin-3" data-pin="3"></div>
-                                       <div class="pin contator-pin-4" data-pin="4"></div>
-                                       <img src="${imageUrl}" alt="${componentName}">
-                                       <div class="pin contator-pin-5" data-pin="5"></div>
-                                       <div class="pin contator-pin-6" data-pin="6"></div>
-                                       <div class="pin contator-pin-7" data-pin="7"></div>
-                                       <div class="pin contator-pin-8" data-pin="8"></div>`;
-            } else if (type === 'treeway1' || type === 'treeway2') {
-                component.innerHTML = `<div class="pin ${type}-pin-1" data-pin="1"></div>
-                                       <div class="pin ${type}-pin-2" data-pin="2"></div>
-                                       <div class="pin ${type}-pin-3" data-pin="3"></div>
-                                       <img src="${imageUrl}" alt="${componentName}">`;
-            } else {
-                component.innerHTML = `<div class="pin pin-1 ${type}-pin-1" data-pin="1"></div>
-                                       <img src="${imageUrl}" alt="${componentName}">
-                                       <div class="pin pin-2 ${type}-pin-2" data-pin="2"></div>`;
-            }
+            component.innerHTML = generateComponentHTML(type, imageUrl, componentName);
             document.getElementById('circuit-area').appendChild(component);
             history.push({action: 'add', element: component});
         }
 
+        function generateComponentHTML(type, imageUrl, componentName) {
+            const commonPins = `
+                <div class="pin ${type}-pin-1" data-pin="1"></div>
+                <img src="${imageUrl}" alt="${componentName}">
+                <div class="pin ${type}-pin-2" data-pin="2"></div>`;
+            const typeSpecificPins = {
+                'motor': `
+                    <div class="pin motor-pin-1" data-pin="1"></div>
+                    <div class="pin motor-pin-2" data-pin="2"></div>
+                    <div class="pin motor-pin-3" data-pin="3"></div>`,
+                'contator': `
+                    <div class="pin contator-pin-1" data-pin="1"></div>
+                    <div class="pin contator-pin-2" data-pin="2"></div>
+                    <div class="pin contator-pin-3" data-pin="3"></div>
+                    <div class="pin contator-pin-4" data-pin="4"></div>
+                    <img src="${imageUrl}" alt="${componentName}">
+                    <div class="pin contator-pin-5" data-pin="5"></div>
+                    <div class="pin contator-pin-6" data-pin="6"></div>
+                    <div class="pin contator-pin-7" data-pin="7"></div>
+                    <div class="pin contator-pin-8" data-pin="8"></div>`,
+                'treeway1': `
+                    <div class="pin treeway1-pin-1" data-pin="1"></div>
+                    <div class="pin treeway1-pin-2" data-pin="2"></div>
+                    <div class="pin treeway1-pin-3" data-pin="3"></div>`,
+                'treeway2': `
+                    <div class="pin treeway2-pin-1" data-pin="1"></div>
+                    <div class="pin treeway2-pin-2" data-pin="2"></div>
+                    <div class="pin treeway2-pin-3" data-pin="3"></div>`
+            };
+            return typeSpecificPins[type] || commonPins;
+        }
         function allowDrop(event) {
             event.preventDefault();
         }
@@ -373,7 +310,6 @@
                                     startElement.classList.add('on');
                                 }
                             }
-                        }
                         }
                     });
                 }
