@@ -211,6 +211,7 @@
             };
             return typeSpecificPins[type] || commonPins;
         }
+
         function allowDrop(event) {
             event.preventDefault();
         }
@@ -232,27 +233,6 @@
             const circuitAreaRect = document.getElementById('circuit-area').getBoundingClientRect();
             component.style.left = (event.clientX - offsetX - circuitAreaRect.left) + 'px';
             component.style.top = (event.clientY - offsetY - circuitAreaRect.top) + 'px';
-            updateConnections();
-        }
-
-        function touchStart(event) {
-            const touch = event.touches[0];
-            const component = event.target.closest('.component');
-            offsetX = touch.pageX - component.offsetLeft;
-            offsetY = touch.pageY - component.offsetTop;
-            component.addEventListener('touchmove', touchMove, false);
-        }
-
-        function touchMove(event) {
-            event.preventDefault();
-            const touch = event.touches[0];
-            const component = event.target.closest('.component');
-            component.style.left = (touch.pageX - offsetX) + 'px';
-            component.style.top = (touch.pageY - offsetY) + 'px';
-            updateConnections();
-        }
-
-        function touchEnd(event) {
             updateConnections();
         }
 
@@ -340,16 +320,16 @@
 
         function updateContactorState() {
             const contactors = document.querySelectorAll('.contator');
-            contactors.forEach(contactor => {
-                const pin4 = contactor.querySelector('.contator-pin-4');
-                const pin8 = contactor.querySelector('.contator-pin-8');
+            contactors.forEach(contator => {
+                const pin4 = contator.querySelector('.contator-pin-4');
+                const pin8 = contator.querySelector('.contator-pin-8');
 
                 if (isPinConnectedToSource(pin4) && isPinConnectedToNeutral(pin8)) {
-                    contactor.classList.add('energized');
+                    contator.classList.add('energized');
                     // Energize output pins
-                    const pin5 = contactor.querySelector('.contator-pin-5');
-                    const pin6 = contactor.querySelector('.contator-pin-6');
-                    const pin7 = contactor.querySelector('.contator-pin-7');
+                    const pin5 = contator.querySelector('.contator-pin-5');
+                    const pin6 = contator.querySelector('.contator-pin-6');
+                    const pin7 = contator.querySelector('.contator-pin-7');
 
                     connectPinToSource(pin5);
                     connectPinToSource(pin6);
@@ -361,7 +341,7 @@
                         motor.querySelector('img').src = 'images/motor_on_red.png';
                     }
                 } else {
-                    contactor.classList.remove('energized');
+                    contator.classList.remove('energized');
                 }
             });
         }
@@ -460,7 +440,7 @@
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
                 line.setAttribute('stroke', 'black');
-                line.setAttribute('stroke-width', '2');
+                line.setAttribute('strokeline.setAttribute('stroke-width', '2');
                 line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 line.addEventListener('click', function(event) {
@@ -691,6 +671,7 @@
                 components: [],
                 connections: connections
             };
+            document.querySelectorAll
             document.querySelectorAll('.component').forEach(component => {
                 const rect = component.getBoundingClientRect();
                 const circuitAreaRect = document.getElementById('circuit-area').getBoundingClientRect();
