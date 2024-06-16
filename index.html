@@ -211,8 +211,7 @@
             };
             return typeSpecificPins[type] || commonPins;
         }
-
-        function allowDrop(event) {
+function allowDrop(event) {
             event.preventDefault();
         }
 
@@ -440,8 +439,9 @@
                 line.setAttribute('y2', endRect.top + end.offsetHeight / 2 - circuitAreaRect.top);
                 line.classList.add('line');
                 line.setAttribute('stroke', 'black');
-                line.setAttribute('strokeline.setAttribute('stroke-width', '2');
-                line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
+                line.setAttribute('stroke-width', '2');
+                line.addEventListener('mouseenter',
+                                      line.addEventListener('mouseenter', () => line.style.cursor = 'pointer');
                 line.addEventListener('mousedown', startDragLine);
                 line.addEventListener('click', function(event) {
                     if (event.detail === 3) {
@@ -671,7 +671,6 @@
                 components: [],
                 connections: connections
             };
-            document.querySelectorAll
             document.querySelectorAll('.component').forEach(component => {
                 const rect = component.getBoundingClientRect();
                 const circuitAreaRect = document.getElementById('circuit-area').getBoundingClientRect();
@@ -756,3 +755,4 @@
     </script>
 </body>
 </html>
+        
