@@ -188,8 +188,8 @@
             <button onclick="addComponent('monofasica', 'images/monofasica.png')" title="Adicionar Alimentação Monofásica">Alimentação Monofásica</button>
             <button onclick="addComponent('neutro', 'images/neutro.png')" title="Adicionar Fio Neutro">Fio Neutro</button>
             <button onclick="addComponent('terra', 'images/terra.png')" title="Adicionar Fio Terra">Fio Terra</button>
-            <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor</button>
-            <button onclick="addComponent('treeway1', 'images/treeway1.png')" title="Adicionar Interruptor Treeway 1">Interruptor Treeway 1</button>
+            <button onclick="addComponent('motor', 'images/motor.png')" title="Adicionar Motor">Adicionar Motor
+                <button onclick="addComponent('treeway1', 'images/treeway1.png')" title="Adicionar Interruptor Treeway 1">Interruptor Treeway 1</button>
             <button onclick="addComponent('treeway2', 'images/treeway2.png')" title="Adicionar Interruptor Treeway 2">Interruptor Treeway 2</button>
             <button onclick="addComponent('contator', 'images/contator.png')" title="Adicionar Contator">Adicionar Contator</button>
             <input type="text" id="componentName" placeholder="Nome do Componente">
@@ -229,9 +229,6 @@
             component.draggable = true;
             component.ondragstart = drag;
             component.ondragend = dragEnd;
-            component.addEventListener('touchstart', touchStart, false);
-            component.addEventListener('touchmove', touchMove, false);
-            component.addEventListener('touchend', touchEnd, false);
             component.addEventListener('mousedown', mouseDown, false);
             component.addEventListener('mouseup', mouseUp, false);
             component.addEventListener('mousemove', mouseMove, false);
@@ -377,6 +374,7 @@
                                 }
                             }
                         }
+                        }
                     });
                 }
             });
@@ -387,7 +385,7 @@
                     const [endComp, endPin] = connection.to.split('.');
 
                     const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementId(endComp);
+                    const endElement = document.getElementById(endComp);
 
                     if (startElement && endElement) {
                         if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
@@ -400,6 +398,48 @@
                     }
                 });
             });
+
+            updateContactorState();
+        }
+
+        function updateContactorState() {
+            const contactors = document.querySelectorAll('.contator');
+            contactors.forEach(contactor => {
+                const pin4 = contactor.querySelector('.contator-pin-4');
+                const pin8 = contactor.querySelector('.contator-pin-8');
+
+                if (isPinConnectedToSource(pin4) && isPinConnectedToNeutral(pin8)) {
+                    contactor.classList.add('energized');
+                    // Energize output pins
+                    const pin5 = contactor.querySelector('.contator-pin-5');
+                    const pin6 = contactor.querySelector('.contator-pin-6');
+                    const pin7 = contactor.querySelector('.contator-pin-7');
+
+                    connectPinToSource(pin5);
+                    connectPinToSource(pin6);
+                    connectPinToSource(pin7);
+
+                    // Change motor color to red
+                    const motor = document.querySelector('.motor');
+                    if (motor) {
+                        motor.querySelector('img').src = 'images/motor_on_red.png';
+                    }
+                } else {
+                    contactor.classList.remove('energized');
+                }
+            });
+        }
+
+        function isPinConnectedToSource(pin) {
+            return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('monofasica'));
+        }
+
+        function isPinConnectedToNeutral(pin) {
+            return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('neutro'));
+        }
+
+        function connectPinToSource(pin) {
+            pin.classList.add('connected');
         }
 
         function isComponentPowered(component) {
@@ -768,34 +808,16 @@
             history.length = 0;
             showMessage('Circuito limpo!', 'info');
         }
+
+        // Funções para movimentar as imagens livremente
         function mouseDown(event) {
-    event.preventDefault();
-    const component = event.target.closest('.component');
-    offsetX = event.clientX - component.offsetLeft;
-    offsetY = event.clientY - component.offsetTop;
-    component.addEventListener('mousemove', mouseMove, false);
-    component.addEventListener('mouseup', mouseUp, false);
-    component.addEventListener('mouseleave', mouseUp, false);
-}
-
-function mouseMove(event) {
-    event.preventDefault();
-    const component = event.target.closest('.component');
-    component.style.left = (event.clientX - offsetX) + 'px';
-    component.style.top = (event.clientY - offsetY) + 'px';
-    updateConnections();
-}
-
-function mouseUp(event) {
-    event.preventDefault();
-    const component = event.target.closest('.component');
-    component.removeEventListener('mousemove', mouseMove, false);
-    component.removeEventListener('mouseup', mouseUp, false);
-    component.removeEventListener('mouseleave', mouseUp, false);
-    updateConnections();
-}
-
-        .addEventListener('mouseleave', mouseUp, false);
+            event.preventDefault();
+            const component = event.target.closest('.component');
+            offsetX = event.clientX - component.offsetLeft;
+            offsetY = event.clientY - component.offsetTop;
+            component.addEventListener('mousemove', mouseMove, false);
+            component.addEventListener('mouseup', mouseUp, false);
+            component.addEventListener('mouseleave', mouseUp, false);
         }
 
         function mouseMove(event) {
@@ -814,41 +836,6 @@ function mouseUp(event) {
             component.removeEventListener('mouseleave', mouseUp, false);
             updateConnections();
         }
-        function updateContactorState() {
-    const contactors = document.querySelectorAll('.contator');
-    contactors.forEach(contactor => {
-        const pin4 = contactor.querySelector('.contator-pin-4');
-        const pin8 = contactor.querySelector('.contator-pin-8');
-
-        if (isPinConnectedToSource(pin4) && isPinConnectedToNeutral(pin8)) {
-            contactor.classList.add('energized');
-            // Energize output pins
-            const pin5 = contactor.querySelector('.contator-pin-5');
-            const pin6 = contactor.querySelector('.contator-pin-6');
-            const pin7 = contactor.querySelector('.contator-pin-7');
-
-            connectPinToSource(pin5);
-            connectPinToSource(pin6);
-            connectPinToSource(pin7);
-        } else {
-            contactor.classList.remove('energized');
-        }
-    });
-}
-
-function isPinConnectedToSource(pin) {
-    return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('monofasica'));
-}
-
-function isPinConnectedToNeutral(pin) {
-    return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('neutro'));
-}
-
-function connectPinToSource(pin) {
-    pin.classList.add('connected');
-}
-
-updateContactorState();
     </script>
 </body>
 </html>
