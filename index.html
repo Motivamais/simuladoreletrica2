@@ -768,16 +768,34 @@
             history.length = 0;
             showMessage('Circuito limpo!', 'info');
         }
-
-        // Funções para movimentar as imagens livremente
         function mouseDown(event) {
-            event.preventDefault();
-            const component = event.target.closest('.component');
-            offsetX = event.clientX - component.offsetLeft;
-            offsetY = event.clientY - component.offsetTop;
-            component.addEventListener('mousemove', mouseMove, false);
-            component.addEventListener('mouseup', mouseUp, false);
-            component.addEventListener('mouseleave', mouseUp, false);
+    event.preventDefault();
+    const component = event.target.closest('.component');
+    offsetX = event.clientX - component.offsetLeft;
+    offsetY = event.clientY - component.offsetTop;
+    component.addEventListener('mousemove', mouseMove, false);
+    component.addEventListener('mouseup', mouseUp, false);
+    component.addEventListener('mouseleave', mouseUp, false);
+}
+
+function mouseMove(event) {
+    event.preventDefault();
+    const component = event.target.closest('.component');
+    component.style.left = (event.clientX - offsetX) + 'px';
+    component.style.top = (event.clientY - offsetY) + 'px';
+    updateConnections();
+}
+
+function mouseUp(event) {
+    event.preventDefault();
+    const component = event.target.closest('.component');
+    component.removeEventListener('mousemove', mouseMove, false);
+    component.removeEventListener('mouseup', mouseUp, false);
+    component.removeEventListener('mouseleave', mouseUp, false);
+    updateConnections();
+}
+
+        .addEventListener('mouseleave', mouseUp, false);
         }
 
         function mouseMove(event) {
@@ -796,6 +814,41 @@
             component.removeEventListener('mouseleave', mouseUp, false);
             updateConnections();
         }
+        function updateContactorState() {
+    const contactors = document.querySelectorAll('.contator');
+    contactors.forEach(contactor => {
+        const pin4 = contactor.querySelector('.contator-pin-4');
+        const pin8 = contactor.querySelector('.contator-pin-8');
+
+        if (isPinConnectedToSource(pin4) && isPinConnectedToNeutral(pin8)) {
+            contactor.classList.add('energized');
+            // Energize output pins
+            const pin5 = contactor.querySelector('.contator-pin-5');
+            const pin6 = contactor.querySelector('.contator-pin-6');
+            const pin7 = contactor.querySelector('.contator-pin-7');
+
+            connectPinToSource(pin5);
+            connectPinToSource(pin6);
+            connectPinToSource(pin7);
+        } else {
+            contactor.classList.remove('energized');
+        }
+    });
+}
+
+function isPinConnectedToSource(pin) {
+    return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('monofasica'));
+}
+
+function isPinConnectedToNeutral(pin) {
+    return connections.some(conn => conn.from === pin.dataset.pin && conn.to.includes('neutro'));
+}
+
+function connectPinToSource(pin) {
+    pin.classList.add('connected');
+}
+
+updateContactorState();
     </script>
 </body>
 </html>
