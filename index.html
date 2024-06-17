@@ -390,11 +390,13 @@
                     const endElement = document.getElementId(endComp);
 
                     if (startElement && endElement) {
-                        if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
-                            if (isComponentPowered(startElement) && areMotorPinsConnected(motor) && areComponentsConnected(startComp, endComp)) {
-                                const img = endElement.querySelector('img');
-                                img.src = 'images/motor_on.png';
-                                endElement.classList.add('on');
+                        if (endElement.classList.contains('motor') && endElement === motor) {
+    if (areMotorPinsConnectedToMonofasica(motor)) {
+        const img = endElement.querySelector('img');
+        img.src = 'images/motor_on.png';
+        endElement.classList.add('on');
+    }
+}
                             }
                         }
                     }
@@ -426,7 +428,22 @@
 
             return false;
         }
-
+        
+function areMotorPinsConnectedToMonofasica(motor) {
+    const motorId = motor.id;
+    const pinsConnected = [false, false, false];
+    connections.forEach(conn => {
+        const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+        const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+        const otherComponent = document.getElementById(otherEnd);
+        if (otherComponent && otherComponent.classList.contains('monofasica')) {
+            if (pinNumber >= 1 && pinNumber <= 3) {
+                pinsConnected[pinNumber - 1] = true;
+            }
+        }
+    });
+    return pinsConnected.every(pin => pin);
+}
         function isPowerSource(componentId) {
             const component = document.getElementById(componentId);
             return component && component.classList.contains('monofasica');
