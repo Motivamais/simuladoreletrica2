@@ -226,25 +226,9 @@
             const component = document.createElement('div');
             component.classList.add('component', type);
             component.id = type + componentCounter;
-            component.draggable = true;
-            component.ondragstart = drag;
-            component.ondragend = dragEnd;
-            component.addEventListener('touchstart', touchStart, false);
-            component.addEventListener('touchmove', touchMove, false);
-            component.addEventListener('touchend', touchEnd, false);
+            component.draggable = false; // Componentes não serão arrastáveis por padrão
             component.addEventListener('mousedown', mouseDown, false);
-            component.addEventListener('mouseup', mouseUp, false);
-            component.addEventListener('mousemove', mouseMove, false);
-            component.addEventListener('dblclick', function() {
-                removeComponent(component.id);
-            }, false);
-            component.addEventListener('click', function(event) {
-                if (event.detail === 3) {
-                    removeComponent(component.id);
-                }
-            }, false);
-            if (type === 'switch' || type === 'treeway1' || type ===
-type === 'treeway2') {
+            if (type === 'switch' || type === 'treeway1' || type === 'treeway2') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
             }
@@ -277,7 +261,6 @@ type === 'treeway2') {
             document.getElementById('circuit-area').appendChild(component);
             history.push({action: 'add', element: component});
         }
-
         function allowDrop(event) {
             event.preventDefault();
         }
@@ -359,9 +342,56 @@ type === 'treeway2') {
                 }
             });
 
-            // Existing logic for switches and other components...
-        }
+            const switches = document.querySelectorAll('.switch, .treeway1, .treeway2');
+            switches.forEach(switchComponent => {
+                if (switchComponent.dataset.state === 'on') {
+                    connections.forEach(connection => {
+                        const [startComp, startPin] = connection.from.split('.');
+                        const [endComp, endPin] = connection.to.split('.');
 
+                        const startElement = document.getElementById(startComp);
+                        const endElement = document.getElementById(endComp);
+
+                        if (startElement && endElement) {
+                            if ((startElement.classList.contains('switch') || startElement.classList.contains('treeway1') || startElement.classList.contains('treeway2')) && endElement.classList.contains('lamp') && endElement === lamp) {
+                                if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
+                                    const img = endElement.querySelector('img');
+                                    img.src = 'images/lamp_on.png';
+                                    endElement.classList.add('on');
+                                }
+                            }
+                            if (startElement.classList.contains('lamp') && (endElement.classList.contains('switch') || endElement.classList.contains('treeway1') || endElement.classList.contains('treeway2')) && startElement === lamp) {
+                                if (isComponentPowered(endElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
+                                    const img = startElement.querySelector('img');
+                                    img.src = 'images/lamp_on.png';
+                                    startElement.classList.add('on');
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+            motors.forEach(motor => {
+                connections.forEach(connection => {
+                    const [startComp, startPin] = connection.from.split('.');
+                    const [endComp, endPin] = connection.to.split('.');
+
+                    const startElement = document.getElementById(startComp);
+                    const endElement = document.getElementById(endComp);
+
+                    if (startElement && endElement) {
+                        if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
+                            if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp)) {
+                                const img = endElement.querySelector('img');
+                                img.src = 'images/motor_on.png';
+                                endElement.classList.add('on');
+                            }
+                        }
+                    }
+                });
+            });
+        }
         function isContactorEnergized(contactor) {
             const contactorId = contactor.id;
             let a1Connected = false;
@@ -445,6 +475,7 @@ type === 'treeway2') {
                 }
             }
         });
+
         function createConnection(start, end) {
             if (isConnectionValid(start, end)) {
                 const connectionsSvg = document.getElementById('connections');
