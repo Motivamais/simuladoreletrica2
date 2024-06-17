@@ -202,7 +202,7 @@
             <button onclick="clearCircuit()" title="Limpar Circuito">Limpar Circuito</button>
         </div>
     </div>
-    <div id="circuit-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div id="circuit-area">
         <svg id="connections"></svg>
     </div>
     <div id="messages"></div>
@@ -228,6 +228,8 @@
             component.id = type + componentCounter;
             component.draggable = false; // Componentes não serão arrastáveis por padrão
             component.addEventListener('mousedown', mouseDown, false);
+            component.addEventListener('touchstart', touchStart, false);
+            component.addEventListener('touchend', touchEnd, false);
             if (type === 'switch' || type === 'treeway1' || type === 'treeway2') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
@@ -236,7 +238,7 @@
             if (type === 'motor') {
                 component.innerHTML = `<div class="pin motor-pin-1" data-pin="1"></div>
                                        <div class="pin motor-pin-2" data-pin="2"></div>
-                                       <div class="pin motor-pin-3" data-pin="3"></div>
+                                       <<div class="pin motor-pin-3" data-pin="3"></div>
                                        <img src="${imageUrl}" alt="${componentName}">`;
             } else if (type === 'contator') {
                 component.innerHTML = `<div class="pin contator-pin-1" data-pin="1"></div>
@@ -304,6 +306,8 @@
         }
 
         function touchEnd(event) {
+            const component = event.target.closest('.component');
+            component.removeEventListener('touchmove', touchMove, false);
             updateConnections();
         }
 
@@ -341,9 +345,9 @@
             });
 
             const contactors = document.querySelectorAll('.contator');
-            contactors.forEach(contactor => {
-                if (isContactorEnergized(contactor)) {
-                    allowPhasePassage(contactor);
+            contactors.forEach(contator => {
+                if (isContatorEnergized(contator)) {
+                    allowPhasePassage(contator);
                 }
             });
 
@@ -400,7 +404,7 @@
         function isMotorConnectedToContactor(motor) {
             const motorId = motor.id;
             const pinsConnectedToContactor = [false, false, false];
-            let contactor = null;
+            let contator = null;
 
             connections.forEach(conn => {
                 const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
@@ -408,39 +412,38 @@
                 const otherComponent = document.getElementById(otherEnd);
 
                 if (otherComponent && otherComponent.classList.contains('contator')) {
-                    contactor = otherComponent;
+                    contator = otherComponent;
                     if (pinNumber >= 1 && pinNumber <= 3) {
                         pinsConnectedToContactor[pinNumber - 1] = true;
                     }
                 }
             });
 
-            if (!pinsConnectedToContactor.every(pin => pin) || !contactor) return false;
+            if (!pinsConnectedToContactor.every(pin => pin) || !contator) return false;
 
-            const contactorPinsConnectedToMonofasica = [false, false, false];
+            const contatorPinsConnectedToMonofasica = [false, false, false];
             connections.forEach(conn => {
-                const otherEnd = conn.from.startsWith(contactor.id) ? conn.to.split('.')[0] : conn.from.split('.')[0];
-                const pinNumber = conn.from.startsWith(contactor.id) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherEnd = conn.from.startsWith(contator.id) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(contator.id) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
                 const otherComponent = document.getElementById(otherEnd);
 
                 if (otherComponent && otherComponent.classList.contains('monofasica')) {
                     if (pinNumber >= 5 && pinNumber <= 7) {
-                        contactorPinsConnectedToMonofasica[pinNumber - 5] = true;
+                        contatorPinsConnectedToMonofasica[pinNumber - 5] = true;
                     }
                 }
             });
 
-            return contactorPinsConnectedToMonofasica.every(pin => pin) && isContactorEnergized(contactor);
-        }
+            return contatorPinsConnectedToMonofasica.every(pin => pin) && isContatorEnergized(contator);}
 
-        function isContactorEnergized(contactor) {
-            const contactorId = contactor.id;
+        function isContatorEnergized(contator) {
+            const contatorId = contator.id;
             let a1Connected = false;
             let a2Connected = false;
 
             connections.forEach(conn => {
-                const otherEnd = conn.from.startsWith(contactorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
-                const pinNumber = conn.from.startsWith(contactorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherEnd = conn.from.startsWith(contatorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(contatorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
                 const otherComponent = document.getElementById(otherEnd);
 
                 if (otherComponent && pinNumber === 4 && otherComponent.classList.contains('monofasica')) {
@@ -454,8 +457,8 @@
             return a1Connected && a2Connected;
         }
 
-        function allowPhasePassage(contactor) {
-            const contactorId = contactor.id;
+        function allowPhasePassage(contator) {
+            const contatorId = contator.id;
 
             connections.forEach(conn => {
                 const fromId = conn.from.split('.')[0];
@@ -463,9 +466,9 @@
                 const toId = conn.to.split('.')[0];
                 const toPin = parseInt(conn.to.split('.')[1]);
 
-                if (fromId === contactorId && fromPin >= 1 && fromPin <= 3) {
+                if (fromId === contatorId && fromPin >= 1 && fromPin <= 3) {
                     const outputPin = fromPin + 4; // Corresponding output pin 5, 6, or 7
-                    connections.push({ from: `${contactorId}.${fromPin}`, to: `${contactorId}.${outputPin}` });
+                    connections.push({ from: `${contatorId}.${fromPin}`, to: `${contatorId}.${outputPin}` });
                 }
             });
 
@@ -636,8 +639,7 @@
                     const index = connections.findIndex(conn => (conn.from === from && conn.to === to) || (conn.from === to && conn.to === from));
                     if (index > -1) {
                         connections.splice(index, 1);
-                        updateConnections();
-                        updateCircuit();
+                        updateConnectionsmessageElement.textContentupdateCircuit();
                     }
                 }
             }
@@ -653,6 +655,7 @@
                 messageElement.remove();
             }, 3000);
         }
+
         function saveConfiguration() {
             const configuration = {
                 components: [],
@@ -783,6 +786,7 @@
             history.length = 0;
             showMessage('Circuito limpo!', 'info');
         }
+
         // Funções para movimentar as imagens livremente
         function mouseDown(event) {
             event.preventDefault();
@@ -813,3 +817,4 @@
     </script>
 </body>
 </html>
+                        
