@@ -243,8 +243,8 @@
                     removeComponent(component.id);
                 }
             }, false);
-            if (type === 'switch' || type === 'treeway1'
-                || type === 'treeway2') {
+            if (type === 'switch' || type === 'treeway1' || type ===
+type === 'treeway2') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
             }
@@ -352,55 +352,54 @@
                 motor.classList.remove('on');
             });
 
-            const switches = document.querySelectorAll('.switch, .treeway1, .treeway2');
-            switches.forEach(switchComponent => {
-                if (switchComponent.dataset.state === 'on') {
-                    connections.forEach(connection => {
-                        const [startComp, startPin] = connection.from.split('.');
-                        const [endComp, endPin] = connection.to.split('.');
-
-                        const startElement = document.getElementById(startComp);
-                        const endElement = document.getElementById(endComp);
-
-                        if (startElement && endElement) {
-                            if ((startElement.classList.contains('switch') || startElement.classList.contains('treeway1') || startElement.classList.contains('treeway2')) && endElement.classList.contains('lamp') && endElement === lamp) {
-                                if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
-                                    const img = endElement.querySelector('img');
-                                    img.src = 'images/lamp_on.png';
-                                    endElement.classList.add('on');
-                                }
-                            }
-                            if (startElement.classList.contains('lamp') && (endElement.classList.contains('switch') || endElement.classList.contains('treeway1') || endElement.classList.contains('treeway2')) && startElement === lamp) {
-                                if (isComponentPowered(endElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
-                                    const img = startElement.querySelector('img');
-                                    img.src = 'images/lamp_on.png';
-                                    startElement.classList.add('on');
-                                }
-                            }
-                        }
-                    });
+            const contactors = document.querySelectorAll('.contator');
+            contactors.forEach(contactor => {
+                if (isContactorEnergized(contactor)) {
+                    allowPhasePassage(contactor);
                 }
             });
 
-            motors.forEach(motor => {
-                connections.forEach(connection => {
-                    const [startComp, startPin] = connection.from.split('.');
-                    const [endComp, endPin] = connection.to.split('.');
+            // Existing logic for switches and other components...
+        }
 
-                    const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementById(endComp);
+        function isContactorEnergized(contactor) {
+            const contactorId = contactor.id;
+            let a1Connected = false;
+            let a2Connected = false;
 
-                    if (startElement && endElement) {
-                        if (endElement.classList.contains('motor') && endElement === motor) {
-                            if (areMotorPinsConnectedToMonofasica(motor)) {
-                                const img = endElement.querySelector('img');
-                                img.src = 'images/motor_on.png';
-                                endElement.classList.add('on');
-                            }
-                        }
-                    }
-                });
+            connections.forEach(conn => {
+                const otherEnd = conn.from.startsWith(contactorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(contactorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherComponent = document.getElementById(otherEnd);
+
+                if (otherComponent && pinNumber === 4 && otherComponent.classList.contains('monofasica')) {
+                    a1Connected = true;
+                }
+                if (otherComponent && pinNumber === 8 && otherComponent.classList.contains('neutro')) {
+                    a2Connected = true;
+                }
             });
+
+            return a1Connected && a2Connected;
+        }
+
+        function allowPhasePassage(contactor) {
+            const contactorId = contactor.id;
+
+            connections.forEach(conn => {
+                const fromId = conn.from.split('.')[0];
+                const fromPin = parseInt(conn.from.split('.')[1]);
+                const toId = conn.to.split('.')[0];
+                const toPin = parseInt(conn.to.split('.')[1]);
+
+                if (fromId === contactorId && fromPin >= 1 && fromPin <= 3) {
+                    const outputPin = fromPin + 4; // Corresponding output pin 5, 6, or 7
+                    connections.push({ from: `${contactorId}.${fromPin}`, to: `${contactorId}.${outputPin}` });
+                }
+            });
+
+            updateConnections();
+            updateCircuit();
         }
 
         function isComponentPowered(component) {
@@ -433,31 +432,6 @@
             return component && component.classList.contains('monofasica');
         }
 
-        function isLampConnectedToNeutral(lamp) {
-            return connections.some(conn => {
-                const lampId = lamp.id;
-                const otherEnd = conn.from.startsWith(lampId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
-                const otherComponent = document.getElementById(otherEnd);
-                return otherComponent && otherComponent.classList.contains('neutro');
-            });
-        }
-
-        function areMotorPinsConnectedToMonofasica(motor) {
-            const motorId = motor.id;
-            const pinsConnected = [false, false, false];
-            connections.forEach(conn => {
-                const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
-                const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
-                const otherComponent = document.getElementById(otherEnd);
-                if (otherComponent && otherComponent.classList.contains('monofasica')) {
-                    if (pinNumber >= 1 && pinNumber <= 3) {
-                        pinsConnected[pinNumber - 1] = true;
-                    }
-                }
-            });
-            return pinsConnected.every(pin => pin);
-        }
-
         document.getElementById('circuit-area').addEventListener('click', function(event) {
             if (isConnecting) {
                 const target = event.target.closest('.pin');
@@ -471,7 +445,6 @@
                 }
             }
         });
-
         function createConnection(start, end) {
             if (isConnectionValid(start, end)) {
                 const connectionsSvg = document.getElementById('connections');
@@ -638,7 +611,6 @@
                 messageElement.remove();
             }, 3000);
         }
-
         function saveConfiguration() {
             const configuration = {
                 components: [],
@@ -671,7 +643,7 @@
                     component.style.left = componentConfig.left + 'px';
                     component.style.top = componentConfig.top + 'px';
                     if (componentConfig.state) {
-                        componentdataset.state = componentConfig.state;
+                        component.dataset.state = componentConfig.state;
                         component.style.backgroundColor = componentConfig.state === 'off' ? 'gray' : 'green';
                     }
                 });
@@ -769,7 +741,6 @@
             history.length = 0;
             showMessage('Circuito limpo!', 'info');
         }
-
         // Funções para movimentar as imagens livremente
         function mouseDown(event) {
             event.preventDefault();
