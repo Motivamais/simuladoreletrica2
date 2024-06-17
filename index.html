@@ -261,6 +261,7 @@
             document.getElementById('circuit-area').appendChild(component);
             history.push({action: 'add', element: component});
         }
+
         function allowDrop(event) {
             event.preventDefault();
         }
@@ -333,6 +334,10 @@
                 const img = motor.querySelector('img');
                 img.src = 'images/motor.png';
                 motor.classList.remove('on');
+                if (isMotorConnectedToMonofasica(motor) || isMotorConnectedToContactor(motor)) {
+                    img.src = 'images/motor_on.png';
+                    motor.classList.add('on');
+                }
             });
 
             const contactors = document.querySelectorAll('.contator');
@@ -371,27 +376,63 @@
                     });
                 }
             });
-
-            motors.forEach(motor => {
-                connections.forEach(connection => {
-                    const [startComp, startPin] = connection.from.split('.');
-                    const [endComp, endPin] = connection.to.split('.');
-
-                    const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementById(endComp);
-
-                    if (startElement && endElement) {
-                        if (startElement.classList.contains('monofasica') && endElement.classList.contains('motor') && endElement === motor) {
-                            if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp)) {
-                                const img = endElement.querySelector('img');
-                                img.src = 'images/motor_on.png';
-                                endElement.classList.add('on');
-                            }
-                        }
-                    }
-                });
-            });
         }
+
+        function isMotorConnectedToMonofasica(motor) {
+            const motorId = motor.id;
+            const pinsConnectedToMonofasica = [false, false, false];
+
+            connections.forEach(conn => {
+                const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherComponent = document.getElementById(otherEnd);
+
+                if (otherComponent && otherComponent.classList.contains('monofasica')) {
+                    if (pinNumber >= 1 && pinNumber <= 3) {
+                        pinsConnectedToMonofasica[pinNumber - 1] = true;
+                    }
+                }
+            });
+
+            return pinsConnectedToMonofasica.every(pin => pin);
+        }
+
+        function isMotorConnectedToContactor(motor) {
+            const motorId = motor.id;
+            const pinsConnectedToContactor = [false, false, false];
+            let contactor = null;
+
+            connections.forEach(conn => {
+                const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherComponent = document.getElementById(otherEnd);
+
+                if (otherComponent && otherComponent.classList.contains('contator')) {
+                    contactor = otherComponent;
+                    if (pinNumber >= 1 && pinNumber <= 3) {
+                        pinsConnectedToContactor[pinNumber - 1] = true;
+                    }
+                }
+            });
+
+            if (!pinsConnectedToContactor.every(pin => pin) || !contactor) return false;
+
+            const contactorPinsConnectedToMonofasica = [false, false, false];
+            connections.forEach(conn => {
+                const otherEnd = conn.from.startsWith(contactor.id) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const pinNumber = conn.from.startsWith(contactor.id) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
+                const otherComponent = document.getElementById(otherEnd);
+
+                if (otherComponent && otherComponent.classList.contains('monofasica')) {
+                    if (pinNumber >= 5 && pinNumber <= 7) {
+                        contactorPinsConnectedToMonofasica[pinNumber - 5] = true;
+                    }
+                }
+            });
+
+            return contactorPinsConnectedToMonofasica.every(pin => pin) && isContactorEnergized(contactor);
+        }
+
         function isContactorEnergized(contactor) {
             const contactorId = contactor.id;
             let a1Connected = false;
@@ -430,36 +471,6 @@
 
             updateConnections();
             updateCircuit();
-        }
-
-        function isComponentPowered(component) {
-            const visited = new Set();
-            const stack = [component.id];
-
-            while (stack.length > 0) {
-                const current = stack.pop();
-                visited.add(current);
-
-                if (isPowerSource(current)) {
-                    return true;
-                }
-
-                connections.forEach(conn => {
-                    if (conn.from.startsWith(current) && !visited.has(conn.to.split('.')[0])) {
-                        stack.push(conn.to.split('.')[0]);
-                    }
-                    if (conn.to.startsWith(current) && !visited.has(conn.from.split('.')[0])) {
-                        stack.push(conn.from.split('.')[0]);
-                    }
-                });
-            }
-
-            return false;
-        }
-
-        function isPowerSource(componentId) {
-            const component = document.getElementById(componentId);
-            return component && component.classList.contains('monofasica');
         }
 
         document.getElementById('circuit-area').addEventListener('click', function(event) {
