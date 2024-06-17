@@ -243,7 +243,8 @@
                     removeComponent(component.id);
                 }
             }, false);
-            if (type === 'switch' || type === 'treeway1' || type === 'treeway2') {
+            if (type === 'switch' || type === 'treeway1'
+                || type === 'treeway2') {
                 component.onclick = toggleSwitch;
                 component.dataset.state = 'off';
             }
@@ -387,16 +388,14 @@
                     const [endComp, endPin] = connection.to.split('.');
 
                     const startElement = document.getElementById(startComp);
-                    const endElement = document.getElementId(endComp);
+                    const endElement = document.getElementById(endComp);
 
                     if (startElement && endElement) {
                         if (endElement.classList.contains('motor') && endElement === motor) {
-    if (areMotorPinsConnectedToMonofasica(motor)) {
-        const img = endElement.querySelector('img');
-        img.src = 'images/motor_on.png';
-        endElement.classList.add('on');
-    }
-}
+                            if (areMotorPinsConnectedToMonofasica(motor)) {
+                                const img = endElement.querySelector('img');
+                                img.src = 'images/motor_on.png';
+                                endElement.classList.add('on');
                             }
                         }
                     }
@@ -428,22 +427,7 @@
 
             return false;
         }
-        
-function areMotorPinsConnectedToMonofasica(motor) {
-    const motorId = motor.id;
-    const pinsConnected = [false, false, false];
-    connections.forEach(conn => {
-        const otherEnd = conn.from.startsWith(motorId) ? conn.to.split('.')[0] : conn.from.split('.')[0];
-        const pinNumber = conn.from.startsWith(motorId) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
-        const otherComponent = document.getElementById(otherEnd);
-        if (otherComponent && otherComponent.classList.contains('monofasica')) {
-            if (pinNumber >= 1 && pinNumber <= 3) {
-                pinsConnected[pinNumber - 1] = true;
-            }
-        }
-    });
-    return pinsConnected.every(pin => pin);
-}
+
         function isPowerSource(componentId) {
             const component = document.getElementById(componentId);
             return component && component.classList.contains('monofasica');
@@ -458,7 +442,7 @@ function areMotorPinsConnectedToMonofasica(motor) {
             });
         }
 
-        function areMotorPinsConnected(motor) {
+        function areMotorPinsConnectedToMonofasica(motor) {
             const motorId = motor.id;
             const pinsConnected = [false, false, false];
             connections.forEach(conn => {
@@ -687,7 +671,7 @@ function areMotorPinsConnectedToMonofasica(motor) {
                     component.style.left = componentConfig.left + 'px';
                     component.style.top = componentConfig.top + 'px';
                     if (componentConfig.state) {
-                        component.dataset.state = componentConfig.state;
+                        componentdataset.state = componentConfig.state;
                         component.style.backgroundColor = componentConfig.state === 'off' ? 'gray' : 'green';
                     }
                 });
