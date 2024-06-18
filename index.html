@@ -236,9 +236,10 @@
             }
             const componentName = document.getElementById('componentName').value || component.id;
             if (type === 'motor') {
-                component.innerHTML = `<div class="pin motor-pin-1" data-pin="1"></div>
+                component.innerHTML = `<div class="pin motor-pin-1" data-pin
+                                        ="1"></div>
                                        <div class="pin motor-pin-2" data-pin="2"></div>
-                                       <<div class="pin motor-pin-3" data-pin="3"></div>
+                                       <div class="pin motor-pin-3" data-pin="3"></div>
                                        <img src="${imageUrl}" alt="${componentName}">`;
             } else if (type === 'contator') {
                 component.innerHTML = `<div class="pin contator-pin-1" data-pin="1"></div>
@@ -362,24 +363,50 @@
                         const endElement = document.getElementById(endComp);
 
                         if (startElement && endElement) {
-                            if ((startElement.classList.contains('switch') || startElement.classList.contains('treeway1') || startElement.classList.contains('treeway2')) && endElement.classList.contains('lamp') && endElement === lamp) {
+                            if (startElement.classList.contains('switch') && endElement.classList.contains('lamp')) {
                                 if (isComponentPowered(startElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(endElement)) {
                                     const img = endElement.querySelector('img');
                                     img.src = 'images/lamp_on.png';
                                     endElement.classList.add('on');
                                 }
                             }
-                            if (startElement.classList.contains('lamp') && (endElement.classList.contains('switch') || endElement.classList.contains('treeway1') || endElement.classList.contains('treeway2')) && startElement === lamp) {
-                                if (isComponentPowered(endElement) && areComponentsConnected(startComp, endComp) && isLampConnectedToNeutral(startElement)) {
-                                    const img = startElement.querySelector('img');
-                                    img.src = 'images/lamp_on.png';
-                                    startElement.classList.add('on');
-                                }
-                            }
                         }
                     });
                 }
             });
+        }
+
+        function isComponentPowered(component) {
+            let powered = false;
+            connections.forEach(conn => {
+                const fromComp = conn.from.split('.')[0];
+                if (fromComp === component.id && document.getElementById(conn.to.split('.')[0]).classList.contains('monofasica')) {
+                    powered = true;
+                }
+            });
+            return powered;
+        }
+
+        function areComponentsConnected(comp1, comp2) {
+            let connected = false;
+            connections.forEach(conn => {
+                if ((conn.from.split('.')[0] === comp1 && conn.to.split('.')[0] === comp2) || 
+                    (conn.from.split('.')[0] === comp2 && conn.to.split('.')[0] === comp1)) {
+                    connected = true;
+                }
+            });
+            return connected;
+        }
+
+        function isLampConnectedToNeutral(lamp) {
+            let connected = false;
+            connections.forEach(conn => {
+                const fromComp = conn.from.split('.')[0];
+                if (fromComp === lamp.id && document.getElementById(conn.to.split('.')[0]).classList.contains('neutro')) {
+                    connected = true;
+                }
+            });
+            return connected;
         }
 
         function isMotorConnectedToMonofasica(motor) {
@@ -423,7 +450,8 @@
 
             const contatorPinsConnectedToMonofasica = [false, false, false];
             connections.forEach(conn => {
-                const otherEnd = conn.from.startsWith(contator.id) ? conn.to.split('.')[0] : conn.from.split('.')[0];
+                const otherEnd = conn.from.startsWith(contator.id) ? conn.to.split('.')[0]
+                : conn.from.split('.')[0];
                 const pinNumber = conn.from.startsWith(contator.id) ? parseInt(conn.from.split('.')[1]) : parseInt(conn.to.split('.')[1]);
                 const otherComponent = document.getElementById(otherEnd);
 
@@ -434,7 +462,8 @@
                 }
             });
 
-            return contatorPinsConnectedToMonofasica.every(pin => pin) && isContatorEnergized(contator);}
+            return contatorPinsConnectedToMonofasica.every(pin => pin) && isContatorEnergized(contator);
+        }
 
         function isContatorEnergized(contator) {
             const contatorId = contator.id;
@@ -623,6 +652,7 @@
             });
             if (index > -1) {
                 connections.splice(index, 1);
+                update
                 updateConnections();
                 updateCircuit();
             }
@@ -639,7 +669,8 @@
                     const index = connections.findIndex(conn => (conn.from === from && conn.to === to) || (conn.from === to && conn.to === from));
                     if (index > -1) {
                         connections.splice(index, 1);
-                        updateConnectionsmessageElement.textContentupdateCircuit();
+                        updateConnections();
+                        updateCircuit();
                     }
                 }
             }
@@ -817,4 +848,3 @@
     </script>
 </body>
 </html>
-                        
